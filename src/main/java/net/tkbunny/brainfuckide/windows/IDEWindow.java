@@ -12,6 +12,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 
@@ -29,7 +31,7 @@ public class IDEWindow extends JFrame {
     static final Color CURRENT = new Color(255, 200, 80);
     static final MatteBorder THICK_BORDER = BorderFactory.createMatteBorder(5, 5, 5, 5, DARK_BACKGROUND);
     static final Font MONOSPACE_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
-    static final Font SANS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+    static final Font SANS_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
 
     private GridBagConstraints newConstraints(double weightX, double weightY, int gridX, int gridY, int gridWidth, int gridHeight) {
         GridBagConstraints constraints = new GridBagConstraints();
@@ -257,12 +259,32 @@ public class IDEWindow extends JFrame {
         panel.add(resetButton, newConstraints(0.1, 0.1, 2, 5, 1, 1));
         panel.add(tapePanel, newConstraints(1.0, 0.1, 0, 6, 3, 1));
 
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Dimension size = e.getComponent().getSize();
+                System.out.println(size.toString());
+
+                codeScrollPane.setPreferredSize(new Dimension((int) (size.width * 0.8), (int) (size.height * 0.9)));
+                inputLabel.setPreferredSize(new Dimension((int) (size.width * 0.2), (int) (size.height * 0.05)));
+                inputScrollPane.setPreferredSize(new Dimension((int) (size.width * 0.2), (int) (size.height * 0.35)));
+                outputLabel.setPreferredSize(new Dimension((int) (size.width * 0.2), (int) (size.height * 0.05)));
+                outputScrollPane.setPreferredSize(new Dimension((int) (size.width * 0.2), (int) (size.height * 0.35)));
+                stepCount.setPreferredSize(new Dimension((int) (size.width * 0.1), (int) (size.height * 0.1)));
+                runButton.setPreferredSize(new Dimension((int) (size.width * 0.1), (int) (size.height * 0.1)));
+                stepButton.setPreferredSize(new Dimension((int) (size.width * 0.1), (int) (size.height * 0.1)));
+                resetButton.setPreferredSize(new Dimension((int) (size.width * 0.1), (int) (size.height * 0.1)));
+                tapePanel.setPreferredSize(new Dimension(size.width, (int) (size.height * 0.1)));
+            }
+        });
+
         add(panel);
         setName("Brainfuck IDE");
         setSize(900, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setBackground(new Color(37, 37, 37));
+        setMinimumSize(new Dimension(810, 460));
         setVisible(true);
     }
 
