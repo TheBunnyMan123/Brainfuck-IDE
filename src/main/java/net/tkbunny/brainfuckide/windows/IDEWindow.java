@@ -90,13 +90,13 @@ public class IDEWindow extends JFrame {
             @Override
             public Byte input() {
                 String text = inputArea.getText();
-                inputArea.setText(text.replaceFirst(".", ""));
 
                 byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
 
                 if (bytes.length == 0) {
                     return 0;
                 } else {
+                    inputArea.setText(text.substring(1));
                     return text.getBytes(StandardCharsets.ISO_8859_1)[0];
                 }
             }
