@@ -9,12 +9,18 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 
 public class IDEWindow extends JFrame {
@@ -278,6 +284,8 @@ public class IDEWindow extends JFrame {
             }
         });
 
+        JMenuBar toolbar = getToolbar();
+
         add(panel);
         setName("Brainfuck IDE");
         setSize(900, 600);
@@ -285,7 +293,137 @@ public class IDEWindow extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setBackground(new Color(37, 37, 37));
         setMinimumSize(new Dimension(810, 460));
+        setJMenuBar(toolbar);
         setVisible(true);
+    }
+
+    File currentFile;
+    private File saveAsMenu() {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Brainfuck Files (*.bf)", "bf");
+        fileChooser.addChoosableFileFilter(fileNameExtensionFilter);
+        fileChooser.setFileFilter(fileNameExtensionFilter);
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+
+            if (fileToSave.exists()) {
+                int overwriteResult = JOptionPane.showConfirmDialog(
+                        this,
+                        "File already exists. Do you want to overwrite it?",
+                        "Confirm Overwrite",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                if (overwriteResult == JOptionPane.NO_OPTION) {
+                    return null;
+                }
+            }
+
+            if (fileChooser.getFileFilter().equals(fileNameExtensionFilter) && !fileToSave.getName().endsWith(".bf")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".bf");
+            }
+
+            return fileToSave;
+        }
+
+        return null;
+    }
+
+    private File openMenu() {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Brainfuck Files (*.bf)", "bf");
+        fileChooser.addChoosableFileFilter(fileNameExtensionFilter);
+        fileChooser.setFileFilter(fileNameExtensionFilter);
+
+        int userSelection = fileChooser.showOpenDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File openedFile = fileChooser.getSelectedFile();
+
+            if (openedFile.exists()) {
+                return openedFile;
+            }
+        }
+
+        return null;
+    }
+
+    private JMenuBar getToolbar() {
+        JMenuBar toolbar = new JMenuBar();
+        toolbar.setFont(SANS_FONT);
+        toolbar.setMargin(null);
+        toolbar.setBackground(DARK_BACKGROUND);
+        toolbar.setForeground(LIGHT_TEXT);
+        toolbar.setBorder(new MatteBorder(3, 3, 0, 3, DARK_BACKGROUND));
+        JMenu file = new JMenu("File");
+        file.setBackground(DARK_BACKGROUND);
+        file.setForeground(LIGHT_TEXT);
+        file.getPopupMenu().setBackground(DARK_BACKGROUND);
+        file.getPopupMenu().setBorder(THICK_BORDER);
+        file.setBorder(null);
+
+        JMenuItem saveButton = new JMenuItem("Save");
+        saveButton.setBackground(LIGHT_BACKGROUND);
+        saveButton.setForeground(LIGHT_TEXT);
+        saveButton.setBorder(null);
+        saveButton.addActionListener(e -> {
+            if (currentFile == null) {
+                currentFile = saveAsMenu();
+
+                if (currentFile == null) {
+                    return;
+                }
+            }
+
+            try (FileWriter writer = new FileWriter(currentFile, StandardCharsets.UTF_8)) {
+                writer.write(codeArea.getText());
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JMenuItem saveAsButton = new JMenuItem("Save As");
+        saveAsButton.setBackground(LIGHT_BACKGROUND);
+        saveAsButton.setForeground(LIGHT_TEXT);
+        saveAsButton.setBorder(null);
+        saveAsButton.addActionListener(e -> {
+            File fileToSave = saveAsMenu();
+            currentFile = fileToSave;
+
+            if (fileToSave != null) {
+                try (FileWriter writer = new FileWriter(fileToSave, StandardCharsets.UTF_8)) {
+                    writer.write(codeArea.getText());
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        JMenuItem openButton = new JMenuItem("Open");
+        openButton.setBackground(LIGHT_BACKGROUND);
+        openButton.setForeground(LIGHT_TEXT);
+        openButton.setBorder(null);
+        openButton.addActionListener(e -> {
+            File openedFile = openMenu();
+
+            if (openedFile != null) {
+                currentFile = openedFile;
+
+                try {
+                    codeArea.setText(new String(Files.readAllBytes(Path.of(openedFile.getPath()))));
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Failed to open file: " + ex.getMessage());
+                }
+            }
+        });
+
+        file.add(saveButton);
+        file.add(saveAsButton);
+        file.add(openButton);
+        toolbar.add(file);
+        return toolbar;
     }
 
     private void updateStyledDocument(JTextArea outputArea, JTextPane codeArea, SimpleAttributeSet plusMinusStyle, SimpleAttributeSet ioStyle, SimpleAttributeSet pointerStyle, SimpleAttributeSet loopStyle, SimpleAttributeSet commentStyle, DefaultStyledDocument styledDocument) {
