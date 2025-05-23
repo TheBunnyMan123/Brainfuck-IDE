@@ -5,7 +5,7 @@
 
   <groupId>net.tkbunny.brainfuckide</groupId>
   <artifactId>net.tkbunny.brainfuckide</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
 
   <name>net.tkbunny.brainfuckide</name>
   <!-- FIXME change it to the project's website -->
@@ -68,6 +68,14 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.4.2</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <addClasspath>true</addClasspath>
+                <mainClass>net.tkbunny.brainfuckide.App</mainClass>
+              </manifest>
+            </archive>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
