@@ -1,5 +1,6 @@
 package net.tkbunny.brainfuckide.windows;
 
+import net.tkbunny.brainfuckide.App;
 import net.tkbunny.brainfuckide.Interpreter;
 import net.tkbunny.brainfuckide.InterpreterCallback;
 
@@ -27,6 +28,8 @@ public class IDEWindow extends JFrame {
     static final Color LIGHT_TEXT = new Color(170, 170, 170);
     static final Color CURRENT = new Color(255, 200, 80);
     static final MatteBorder THICK_BORDER = BorderFactory.createMatteBorder(5, 5, 5, 5, DARK_BACKGROUND);
+    static final Font MONOSPACE_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+    static final Font SANS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
 
     private GridBagConstraints newConstraints(double weightX, double weightY, int gridX, int gridY, int gridWidth, int gridHeight) {
         GridBagConstraints constraints = new GridBagConstraints();
@@ -53,6 +56,7 @@ public class IDEWindow extends JFrame {
         button.addActionListener(listener);
         button.setFocusable(false);
         button.setOpaque(true);
+        button.setFont(SANS_FONT);
 
         button.addChangeListener(e -> {
             if (button.getModel().isPressed()) {
@@ -74,6 +78,7 @@ public class IDEWindow extends JFrame {
         JTextPane codeArea = new JTextPane();
         codeArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         codeArea.setHighlighter(this.highlighter);
+        codeArea.setFont(MONOSPACE_FONT);
 
         DefaultStyledDocument styledDocument = new DefaultStyledDocument();
         SimpleAttributeSet commentStyle = new SimpleAttributeSet();
@@ -119,19 +124,25 @@ public class IDEWindow extends JFrame {
         area.setForeground(TEXT);
         area.setCaretColor(TEXT);
         area.setEditable(editable);
+        area.setFont(MONOSPACE_FONT);
 
         return area;
     }
 
-    private JLabel createLabel(String text) {
+    private JLabel createLabel(String text, Color background) {
         JLabel label = new JLabel(text);
         label.setForeground(LIGHT_TEXT);
-        label.setBackground(DARK_BACKGROUND);
-        label.setOpaque(false);
+        label.setBackground(background);
+        label.setOpaque(true);
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setBorder(null);
+        label.setFont(SANS_FONT);
 
         return label;
+    }
+
+    private JLabel createLabel(String text) {
+        return createLabel(text, DARK_BACKGROUND);
     }
 
     public IDEWindow() {
@@ -171,14 +182,10 @@ public class IDEWindow extends JFrame {
 
         String tapeDisplayFormat = "<html><body style='text-align: center;'>%d<br>%0" + String.valueOf(cells).length() + "d</body></html>";
         for (int i = 0; i < tapePanelLabels.length; i++) {
-            tapePanelLabels[i] = new JLabel();
-            tapePanelLabels[i].setText(String.format(tapeDisplayFormat, 0, ((((-tapePanelLabels.length/2 + i)) % cells + cells) % cells)));
-            tapePanelLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
+            tapePanelLabels[i] = createLabel(String.format(tapeDisplayFormat, 0, ((((-tapePanelLabels.length/2 + i)) % cells + cells) % cells)), LIGHT_BACKGROUND);
             tapePanelLabels[i].setBorder(new LineBorder(new Color(200, 200, 200)));
             tapePanelLabels[i].setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
-            tapePanelLabels[i].setOpaque(true);
             tapePanelLabels[i].setBorder(THICK_BORDER);
-            tapePanelLabels[i].setBackground(LIGHT_BACKGROUND);
             if (i == 13 / 2) {
                 tapePanelLabels[i].setForeground(CURRENT);
             } else {
@@ -283,6 +290,7 @@ public class IDEWindow extends JFrame {
     }
 
     public static void main(String[] args) {
-        new IDEWindow();
+        // Allow starting directly from IDEWindow in IDEs
+        App.main(args);
     }
 }
