@@ -108,7 +108,10 @@ public class IDEWindow extends JFrame {
             outputArea.setText(ret);
         });
         stepButton.addActionListener(e -> outputArea.setText(outputArea.getText() + interpreter.step(1, callback)));
-        resetButton.addActionListener(e -> interpreter = new Interpreter(30000, codeArea.getText()));
+        resetButton.addActionListener(e -> {
+           interpreter = new Interpreter(30000, codeArea.getText());
+           outputArea.setText("");
+        });
 
         codeArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
