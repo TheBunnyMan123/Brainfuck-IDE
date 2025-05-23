@@ -26,7 +26,7 @@ public class Interpreter {
 
         int loopsRan = 0;
         while (count > 0 && character < code.length()) {
-            interpreterCallback.step(character);
+            interpreterCallback.step(character, pointer, tape.clone());
 
             switch(((Character) code.charAt(character)).toString()) {
                 case ">" -> pointer++;
