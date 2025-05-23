@@ -150,6 +150,7 @@ public class IDEWindow extends JFrame {
         JFormattedTextField stepCount = new JFormattedTextField(NumberFormat.getIntegerInstance());
         stepCount.setBackground(LIGHT_BACKGROUND);
         stepCount.setForeground(TEXT);
+        stepCount.setCaretColor(TEXT);
         stepCount.setHorizontalAlignment(SwingConstants.CENTER);
         stepCount.setText("1");
         stepCount.setBorder(THICK_BORDER);
