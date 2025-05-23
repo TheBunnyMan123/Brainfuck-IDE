@@ -114,16 +114,19 @@ public class IDEWindow extends JFrame {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 interpreter = new Interpreter(30000, codeArea.getText());
+                outputArea.setText("");
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
                 interpreter = new Interpreter(30000, codeArea.getText());
+                outputArea.setText("");
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
                 interpreter = new Interpreter(30000, codeArea.getText());
+                outputArea.setText("");
             }
         });
 
